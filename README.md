@@ -5,7 +5,7 @@ A ticket viewer that allows the user to connect to the Zendesk API and look at t
 The required libraries for this project are located in requirements.txt. Install them with pip:
 `pip install -r requirements.txt`
 
-You also need to enter in your credentials into the `.env` file.\
+You also need to enter in your credentials into the `.env` file:\
 `USER_NAME` should be replaced with your email.\
 `API_KEY` should be replaced with the key obtained from Admin -> Channels -> API.\
 `URL` only requires the domain to be replaced. (i.e. https://yourdomain.zendesk.com/api/v2/)
