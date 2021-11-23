@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
-PASSWORD = os.getenv('PASSWORD')
+USER_NAME = os.getenv('USER_NAME')
+API_KEY = os.getenv('API_KEY')
 URL = os.getenv('URL')
 
 ticket_ids = {}
@@ -44,7 +44,7 @@ def display_all_tickets(tickets):
         if valid_response:
             for i in range(0, 25):
                 ticket = tickets[i + (25 * (int(current_page) - 1))]
-                print('Ticket #' + str(ticket['id']) + ': \'' + ticket['subject'] + '\' last updated on ' + ticket['updated_at'])
+                print('Ticket #' + str(ticket['id']) + ': \'' + ticket['subject'] + '\' last updated on ' + ticket['updated_at'][0:10])
 
             print('Viewing tickets ' + str(1 + 25 * (int(current_page) - 1)) + '-' + str(25 * int(current_page)) + ' of ' + str(len(tickets)) + 
                 ', page ' + str(current_page) + ' of ' + str(num_pages) + '\n')
@@ -78,7 +78,6 @@ def display_single_ticket(tickets):
             response = input('Please only enter a numberical value: ')
         # Search in created hash table for the id
         elif int(response) in ticket_ids:
-            # print('Ticket #' + response + ': \'' + ticket_ids[int(response)]['subject'] + '\' last updated on ' + ticket_ids[int(response)]['updated_at'] + '\n')
             display_ticket_information(int(response))
             found_ticket = True
         else:
@@ -86,8 +85,9 @@ def display_single_ticket(tickets):
 
 # Displays detailed information for a single ticket
 def display_ticket_information(ticket_number):
-    r = requests.get(URL + 'users/' + str(ticket_ids[ticket_number]['requester_id']) + '.json', auth=(EMAIL_ADDRESS, PASSWORD))
-    name = r.json()['user']['name']
+    arg = 'users/' + str(ticket_ids[ticket_number]['requester_id']) + '.json'
+    name = call_api(arg)['user']['name']
+    
     print('\nRequestor: ' + name)
     print('Subject: ' + ticket_ids[ticket_number]['subject'])
     print('\nDescription: ' + ticket_ids[ticket_number]['description'] + '\n')
@@ -97,23 +97,31 @@ def store_ticket_numbers(tickets):
     for ticket in tickets:
         ticket_ids[ticket['id']] = ticket
 
-# Connect to API and get tickets
-def get_tickets():
+# Connect to API and make a request
+def call_api(arg):
     try:
-        r = requests.get(URL + 'tickets.json', auth=(EMAIL_ADDRESS, PASSWORD))
+        r = requests.get(URL + arg, auth=(USER_NAME, API_KEY))
     except requests.exceptions.HTTPError as errh:
         print ('Http Error:', errh)
     except requests.exceptions.ConnectionError as errc:
         print ('Error Connecting:', errc)
     except requests.exceptions.Timeout as err:
         print('Timeout error: ', err)
-    return r.json()['tickets']
+    if r.status_code == 401:
+        print('Credentials invalid. Please fix your credentials and try again.')
+        exit()
+    return r.json()
 
 if __name__ == "__main__":
-    response = ''
-    tickets = get_tickets()
+    # Makes a single call to the API to get all tickets
+    # As someone who works in an IT Support setting, there aren't normally an 
+    # abnormally large amount of tickets in the queue, so using a single API
+    # call to get them all at once seems better in this situation
+    tickets = call_api('tickets.json')['tickets']
     store_ticket_numbers(tickets)
+
     print('Welcome to the ticket viewer!')
+    response = ''
 
     # Keep looping until quit is typed
     while response != 'quit':
