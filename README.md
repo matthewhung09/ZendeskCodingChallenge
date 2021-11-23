@@ -6,8 +6,8 @@ The required libraries for this project are located in requirements.txt. Install
 `pip install -r requirements.txt`
 
 You also need to enter in your credentials into the `.env` file. 
-`USER_NAME` should be replaced with your email.
-`API_KEY` should be replaced with the key obtained from Admin -> Channels -> API.
+`USER_NAME` should be replaced with your email.\
+`API_KEY` should be replaced with the key obtained from Admin -> Channels -> API.\
 `URL` only requires the domain to be replaced. (i.e. https://yourdomain.zendesk.com/api/v2/)
 
 ## How to run?
