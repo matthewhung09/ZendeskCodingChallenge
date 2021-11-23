@@ -7,8 +7,8 @@ load_dotenv()
 
 EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
 PASSWORD = os.getenv('PASSWORD')
+URL = os.getenv('URL')
 
-url = 'https://zccmhung.zendesk.com/api/v2/tickets.json'
 ticket_ids = {}
 
 # Displays the menu options for viewing tickets
@@ -33,7 +33,6 @@ def display_menu(tickets):
 def display_all_tickets(tickets):
     # Determine out how many pages of tickets we have
     if len(tickets) > 25:
-        print(len(tickets))
         num_pages = (len(tickets) + 25 - 1) // 25
 
     response = ''
@@ -47,7 +46,8 @@ def display_all_tickets(tickets):
                 ticket = tickets[i + (25 * (int(current_page) - 1))]
                 print('Ticket #' + str(ticket['id']) + ': \'' + ticket['subject'] + '\' last updated on ' + ticket['updated_at'])
 
-            print('Displaying page ' + str(current_page) + ' of ' + str(num_pages) + ':\n')
+            print('Viewing tickets ' + str(1 + 25 * (int(current_page) - 1)) + '-' + str(25 * int(current_page)) + ' of ' + str(len(tickets)) + 
+                ', page ' + str(current_page) + ' of ' + str(num_pages) + '\n')
             response = input('Enter the number page you would like to view or type \'back\' to return to the menu: ')
         if response == 'back':
             break
@@ -78,10 +78,19 @@ def display_single_ticket(tickets):
             response = input('Please only enter a numberical value: ')
         # Search in created hash table for the id
         elif int(response) in ticket_ids:
-            print('Ticket #' + response + ': \'' + ticket_ids[int(response)]['subject'] + '\' last updated on ' + ticket_ids[int(response)]['updated_at'] + '\n')
+            # print('Ticket #' + response + ': \'' + ticket_ids[int(response)]['subject'] + '\' last updated on ' + ticket_ids[int(response)]['updated_at'] + '\n')
+            display_ticket_information(int(response))
             found_ticket = True
         else:
             response = input('Unable to find that ticket. Please enter a valid ticket number: ')
+
+# Displays detailed information for a single ticket
+def display_ticket_information(ticket_number):
+    r = requests.get(URL + 'users/' + str(ticket_ids[ticket_number]['requester_id']) + '.json', auth=(EMAIL_ADDRESS, PASSWORD))
+    name = r.json()['user']['name']
+    print('\nRequestor: ' + name)
+    print('Subject: ' + ticket_ids[ticket_number]['subject'])
+    print('\nDescription: ' + ticket_ids[ticket_number]['description'] + '\n')
 
 # Store tickets in a hash table for O(1) look up times
 def store_ticket_numbers(tickets):
@@ -91,7 +100,7 @@ def store_ticket_numbers(tickets):
 # Connect to API and get tickets
 def get_tickets():
     try:
-        r = requests.get(url, auth=(EMAIL_ADDRESS, PASSWORD))
+        r = requests.get(URL + 'tickets.json', auth=(EMAIL_ADDRESS, PASSWORD))
     except requests.exceptions.HTTPError as errh:
         print ('Http Error:', errh)
     except requests.exceptions.ConnectionError as errc:
@@ -105,6 +114,8 @@ if __name__ == "__main__":
     tickets = get_tickets()
     store_ticket_numbers(tickets)
     print('Welcome to the ticket viewer!')
+
+    # Keep looping until quit is typed
     while response != 'quit':
         response = input('Type \'menu\' to view options or \'quit\' to exit: ')
         if response == 'menu':
