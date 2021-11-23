@@ -20,10 +20,10 @@ python main.py
 ## Usage
 
 The application is very self explanatory. 
-First, the program will prompt you to choose between the menu and closing the application.
+First, the program will prompt you to choose between the menu and closing the application.\
 <img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/first_menu.PNG" width="60%" height="60%">
 
-If menu is chosen, it will prompt you again to choose a viewing option.
+If menu is chosen, it will prompt you again to choose a viewing option.\
 <img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/second_menu.PNG" width="55%" height="55%">
 
 Once finished viewing with your selected option, it will return to the original menu and prompt again for your choice. 
