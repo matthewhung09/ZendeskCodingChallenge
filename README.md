@@ -21,9 +21,9 @@ python main.py
 
 The application is very self explanatory. 
 First, the program will prompt you to choose between the menu and closing the application.
-<img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/first_menu.PNG" width="80%" height="80%">
+<img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/first_menu.PNG" width="60%" height="60%">
 
 If menu is chosen, it will prompt you again to choose a viewing option.
-<img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/second_menu.PNG" width="60%" height="60%">
+<img src="https://raw.githubusercontent.com/matthewhung09/ZendeskCodingChallenge/master/.github/images/second_menu.PNG" width="50%" height="50%">
 
 Once finished viewing with your selected option, it will return to the original menu and prompt again for your choice. 
