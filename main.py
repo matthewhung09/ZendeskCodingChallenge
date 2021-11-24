@@ -15,9 +15,9 @@ ticket_ids = {}
 # Displays the menu options for viewing tickets
 def display_menu():
     print('\nSelect an option:')
-    print('* View all tickets (1)')
-    print('* View a single ticket (2)')
-    print('* Quit (3)\n')
+    print('* Press 1 to view all tickets (1)')
+    print('* Press 2 to view a single ticket (2)')
+    print('* Press 3 to quit (3)\n')
     response = input()
 
     if response == '1':
@@ -48,23 +48,21 @@ def display_all_tickets():
     # Keep prompting user for page number until they decide to go back
     while response != 'back':
         if valid_response:
-            # If last page, make sure we don't go past the last ticket
+            # If last page, make sure we don't try to print past the last ticket
             if current_page == num_pages:
                 max_per_page = len(all_tickets) % 25
             else:
                 max_per_page = 25
-            tickets_displayed = 0
             for i in range(0, max_per_page):
                 ticket = all_tickets[i + (25 * (current_page - 1))]
                 print('Ticket #' + str(ticket['id']) + ': \'' + ticket['subject'] + '\' last updated on ' + ticket['updated_at'][0:10])
-                tickets_displayed += 1
                 i += 1
 
             print('Viewing tickets ' + str(1 + 25 * (int(current_page) - 1)) + '-' + str(max_per_page) + ' of ' + str(len(all_tickets)) + 
                 ', page ' + str(current_page) + ' of ' + str(num_pages) + '\n')
             response = input('Enter the number page you would like to view or type \'back\' to return to the menu: ')
         if response == 'back':
-            break
+            return False
         if is_valid_response(response, num_pages):
             current_page = int(response)
             valid_response = True
@@ -97,12 +95,12 @@ def display_single_ticket():
             found_ticket = True
         else:
             response = input('Unable to find that ticket. Please enter a valid ticket number: ')
+    return True
 
 # Displays detailed information for a single ticket
 # Shows requester name, subject, and description of ticket
 def display_ticket_information(ticket_number, arg):
-    # Convert requester_id from ticket information to an actual name
-    # arg = 'users/' + str(tickets[ticket_number]['requester_id']) + '.json'
+    # Convert requester_id from ticket information to the user's actual name
     name = call_api(arg)
 
     if name == -1:
@@ -113,7 +111,7 @@ def display_ticket_information(ticket_number, arg):
     print('\nRequestor: ' + name)
     print('Subject: ' + ticket_ids[ticket_number]['subject'])
     print('\nDescription: ' + ticket_ids[ticket_number]['description'] + '\n')
-
+    return name
 
 # Store ticket_ids in a hash table for O(1) look up times
 
@@ -133,12 +131,14 @@ def store_tickets(offset, tickets):
 # Connect to API and make a request
 def call_api(arg):
     try:
+        # Handles getting tickets
         if arg == 'tickets.json':
             offset = 0
             arg = arg + '?page[size]=100'
             r = requests.get(URL + arg, auth=(USER_NAME + '/token', API_KEY))
             store_tickets(offset, r.json()['tickets'])
 
+            # Keep getting tickets in pages of 100 until no more left
             while r.json()['meta']['has_more']:
                 r = requests.get(r.json()['links']['next'], auth=(USER_NAME + '/token', API_KEY))
                 offset += 1
@@ -146,6 +146,7 @@ def call_api(arg):
 
         else: 
             r = requests.get(URL + arg, auth=(USER_NAME + '/token', API_KEY))
+
         r.raise_for_status() # Allows for http errors to raise exceptions
 
     # Handles HTTP error i.e 401, 403, etc.
